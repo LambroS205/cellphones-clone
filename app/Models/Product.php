@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Cache;
 
 class Product extends Model
 {
@@ -15,6 +14,14 @@ class Product extends Model
         'category_id', 'name', 'slug', 'sku', 'short_description',
         'description', 'price', 'sale_price', 'stock_quantity',
         'thumbnail', 'is_featured', 'is_active'
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'sale_price' => 'decimal:2',
+        'stock_quantity' => 'integer',
+        'is_featured' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function category(): BelongsTo
@@ -27,21 +34,8 @@ class Product extends Model
         return $this->sale_price > 0 && $this->sale_price < $this->price;
     }
 
-    // --- CODE THÊM MỚI ---
-    /**
-     * Hàm boot của Model, tự động được gọi khi Model khởi tạo.
-     * Sử dụng Model Events để quản lý Cache.
-     */
-    protected static function booted()
+    public function getEffectivePriceAttribute(): float
     {
-        // Khi một sản phẩm được thêm mới hoặc cập nhật
-        static::saved(function ($product) {
-            Cache::forget('home_featured_products');
-        });
-
-        // Khi một sản phẩm bị xoá
-        static::deleted(function ($product) {
-            Cache::forget('home_featured_products');
-        });
+        return $this->is_on_sale ? $this->sale_price : $this->price;
     }
 }

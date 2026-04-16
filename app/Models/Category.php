@@ -15,25 +15,20 @@ class Category extends Model
         'name', 'slug', 'parent_id', 'description', 'image', 'is_active'
     ];
 
-    /**
-     * Lấy danh mục cha (N-1)
-     */
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'parent_id');
     }
 
-    /**
-     * Lấy các danh mục con (1-N)
-     */
     public function children(): HasMany
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
 
-    /**
-     * Một danh mục có nhiều sản phẩm
-     */
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);

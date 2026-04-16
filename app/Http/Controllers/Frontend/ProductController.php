@@ -13,14 +13,26 @@ class ProductController extends Controller
      */
     public function show($slug)
     {
-        // Tìm sản phẩm theo slug (đường dẫn thân thiện).
-        // Dùng firstOrFail() để nếu không tìm thấy sẽ tự động ném ra lỗi 404.
         $product = Product::with('category')
             ->where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();
 
-        // Trả về view chi tiết sản phẩm (chúng ta sẽ thiết kế View này sau)
         return view('frontend.product.show', compact('product'));
+    }
+
+    /**
+     * Hiển thị danh sách sản phẩm theo danh mục
+     */
+    public function indexByCategory($categorySlug)
+    {
+        $products = Product::with('category')
+            ->whereHas('category', function ($query) use ($categorySlug) {
+                $query->where('slug', $categorySlug);
+            })
+            ->where('is_active', true)
+            ->paginate(12);
+
+        return view('frontend.product.index', compact('products'));
     }
 }
