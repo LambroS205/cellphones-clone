@@ -13,17 +13,34 @@ class OrderController extends Controller
      */
     public function index()
     {
-        // CÁCH LÀM SAI (Sẽ gây lỗi N+1 khi ra View gọi $order->user->name):
-        // $orders = Order::latest()->paginate(20);
-
-        // CÁCH LÀM ĐÚNG CỦA SENIOR DEV: Dùng hàm with()
-        // Giải thích: Hàm with() sẽ gom toàn bộ ID của user và items lại,
-        // và chỉ dùng đúng 2 câu query dùng IN (...) để lấy dữ liệu.
-        // Thay vì 21 query, ta chỉ tốn đúng 3 query cho mọi trường hợp.
         $orders = Order::with(['user', 'items.product'])
             ->orderBy('id', 'desc')
             ->paginate(20);
 
         return view('admin.orders.index', compact('orders'));
+    }
+
+    /**
+     * Hiển thị chi tiết đơn hàng
+     */
+    public function show(Order $order)
+    {
+        $order->load(['user', 'items.product']);
+
+        return view('admin.orders.show', compact('order'));
+    }
+
+    /**
+     * Cập nhật trạng thái đơn hàng
+     */
+    public function updateStatus(Request $request, Order $order)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,confirmed,processing,shipped,delivered,cancelled'
+        ]);
+
+        $order->update(['status' => $request->status]);
+
+        return back()->with('success', 'Đã cập nhật trạng thái đơn hàng.');
     }
 }

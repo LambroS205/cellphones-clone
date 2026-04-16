@@ -15,21 +15,26 @@
                         <th class="py-3 px-4 text-center">Số lượng</th>
                         <th class="py-3 px-4 text-right">Đơn giá</th>
                         <th class="py-3 px-4 text-right">Thành tiền</th>
+                        <th class="py-3 px-4"></th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @foreach($cartItems as $id => $item)
                         <tr>
                             <td class="py-4 px-4 flex items-center">
-                                <img src="[https://via.placeholder.com/80?text=IMG](https://via.placeholder.com/80?text=IMG)" class="w-16 h-16 rounded border mr-4" alt="">
+                                <img src="{{ $item['thumbnail'] ?? 'https://via.placeholder.com/80?text=IMG' }}" class="w-16 h-16 rounded border mr-4" alt="{{ $item['name'] }}">
                                 <div>
                                     <p class="font-semibold text-gray-800">{{ $item['name'] }}</p>
-                                    <button class="text-red-500 text-sm mt-1 hover:underline">Xoá</button>
                                 </div>
                             </td>
                             <td class="py-4 px-4 text-center">
-                                <!-- Trong dự án thực tế, chỗ này sẽ là input number gọi Ajax update -->
-                                <span class="font-medium bg-gray-100 px-3 py-1 rounded">{{ $item['quantity'] }}</span>
+                                <form action="{{ route('cart.update', $id) }}" method="POST" class="inline-flex items-center">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="1" 
+                                           class="w-20 text-center border rounded py-1" 
+                                           onchange="this.form.submit()">
+                                </form>
                             </td>
                             <td class="py-4 px-4 text-right text-gray-600">
                                 {{ number_format($item['price'], 0, ',', '.') }} ₫
@@ -37,12 +42,25 @@
                             <td class="py-4 px-4 text-right font-bold text-brand-red">
                                 {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }} ₫
                             </td>
+                            <td class="py-4 px-4 text-right">
+                                <form action="{{ route('cart.remove', $id) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-500 hover:text-red-700 text-sm"
+                                            onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
+                                        Xóa
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
 
-            <div class="bg-gray-50 p-6 border-t flex justify-end">
+            <div class="bg-gray-50 p-6 border-t flex justify-between items-center">
+                <a href="{{ route('home') }}" class="text-blue-600 hover:underline">
+                    ← Tiếp tục mua sắm
+                </a>
                 <div class="w-full md:w-1/2 lg:w-1/3">
                     <div class="flex justify-between font-bold text-lg mb-4">
                         <span>Tổng tiền:</span>
@@ -56,7 +74,9 @@
         </div>
     @else
         <div class="bg-white p-12 rounded-xl shadow-sm text-center">
-            <svg class="w-20 h-20 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <svg class="w-20 h-20 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
             <p class="text-gray-500 mb-6">Giỏ hàng của bạn đang trống.</p>
             <a href="{{ route('home') }}" class="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
                 Tiếp tục mua sắm

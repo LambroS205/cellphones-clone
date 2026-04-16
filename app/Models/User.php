@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles; // Import Spatie
+use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles; // Thêm HasRoles để phân quyền
+    use HasFactory, Notifiable, HasRoles;
 
     protected $fillable = [
         'name',
@@ -31,9 +31,6 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Một User có thể có nhiều đơn hàng (1-N)
-     */
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

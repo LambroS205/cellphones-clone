@@ -13,6 +13,10 @@ class Order extends Model
         'shipping_address', 'phone_number', 'notes'
     ];
 
+    protected $casts = [
+        'total_amount' => 'decimal:2',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
